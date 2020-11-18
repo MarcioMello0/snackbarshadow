@@ -32,7 +32,7 @@ public class ShadowSnackbar {
 
     @RealObject
     Snackbar snackbar;
-    String text;
+    SnackbarContentLayout snackbarContentLayout;
     private int duration;
     private int gravity;
     private int xOffset;
@@ -42,6 +42,7 @@ public class ShadowSnackbar {
     @Implementation
     public static Snackbar make(@NonNull View view, @NonNull CharSequence text, int duration) {
         Snackbar snackbar = null;
+        SnackbarContentLayout content = null;
 
         try {
             Constructor<Snackbar> constructor = Snackbar.class.getDeclaredConstructor(ViewGroup.class, View.class, ContentViewCallback.class);
@@ -55,7 +56,7 @@ public class ShadowSnackbar {
             }
 
             ViewGroup parent = findSuitableParent(view);
-            final SnackbarContentLayout content =
+            content =
                     (SnackbarContentLayout)
                             LayoutInflater.from(parent.getContext()).inflate(android.support.design.R.layout.design_layout_snackbar_include, parent, false);
 
@@ -66,7 +67,7 @@ public class ShadowSnackbar {
             e.printStackTrace();
         }
 
-        shadowOf(snackbar).text = text.toString();
+        shadowOf(snackbar).snackbarContentLayout = content;
 
         shadowSnackbars.add(shadowOf(snackbar));
 
@@ -121,7 +122,8 @@ public class ShadowSnackbar {
 
     public static String getTextOfLatestSnackbar() {
         if (!shadowSnackbars.isEmpty())
-            return shadowSnackbars.get(shadowSnackbars.size() - 1).text;
+            return shadowSnackbars.get(shadowSnackbars.size() - 1)
+                    .snackbarContentLayout.getMessageView().getText().toString();
 
         return null;
     }
